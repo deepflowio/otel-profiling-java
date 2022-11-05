@@ -24,6 +24,9 @@ public class PyroscopeOtelSpanProcessor implements SpanProcessor {
     private static final String LABEL_PROFILE_ID = "profile_id";
     private static final String LABEL_SPAN_NAME = "span_name";
 
+    private static final String LABEL_PROFILE_TRACE_ID = "profile_trace_id";
+
+    private static final String LABEL_INSTANCE_NAME = "profile_instance_name";
     private static final AttributeKey<String> ATTRIBUTE_KEY_PROFILE_ID = AttributeKey.stringKey("pyroscope.profile.id");
     private static final AttributeKey<String> ATTRIBUTE_KEY_PROFILE_URL = AttributeKey.stringKey("pyroscope.profile.url");
     private static final AttributeKey<String> ATTRIBUTE_KEY_PROFILE_BASELINE_URL = AttributeKey.stringKey("pyroscope.profile.baseline.url");
@@ -54,9 +57,13 @@ public class PyroscopeOtelSpanProcessor implements SpanProcessor {
         }
         Map<String, String> labels = new HashMap<>();
         String profileId = span.getSpanContext().getSpanId();
+        String profileTraceId = span.getSpanContext().getTraceId();
+        profileId = new StringBuilder().append(profileTraceId).append("|").append(profileId).toString();
         labels.put(LABEL_PROFILE_ID, profileId);
+        labels.put(LABEL_INSTANCE_NAME, configuration.instanceName);
         if (configuration.addSpanName) {
             labels.put(LABEL_SPAN_NAME, span.getName());
+            labels.put(LABEL_PROFILE_TRACE_ID, profileTraceId);
         }
 
         ScopedContext pyroscopeContext = new ScopedContext(new LabelsSet(labels));

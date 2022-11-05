@@ -5,9 +5,11 @@ import java.util.Map;
 
 public class PyroscopeOtelConfiguration {
     final String appName;
+    final String instanceName;
     final String pyroscopeEndpoint;
     final boolean rootSpanOnly;
     final boolean addSpanName;
+    final boolean addTraceId;
     final boolean addProfileURL;
     final boolean addProfileBaselineURLs;
     final boolean optimisticTimestamps;
@@ -25,9 +27,11 @@ public class PyroscopeOtelConfiguration {
         }
         //todo warn if appname does not end with cpu, itimer, wall
         this.appName = builder.appName;
+        this.instanceName = builder.instanceName;
         this.pyroscopeEndpoint = builder.pyroscopeEndpoint;
         this.rootSpanOnly = builder.rootSpanOnly;
         this.addSpanName = builder.addSpanName;
+        this.addTraceId = builder.addTraceId;
         this.addProfileURL = builder.addProfileURL;
         this.addProfileBaselineURLs = builder.addProfileBaselineURLs;
         this.profileBaselineLabels = builder.profileBaselineLabels;
@@ -38,9 +42,11 @@ public class PyroscopeOtelConfiguration {
     public String toString() {
         return "PyroscopeOtelConfiguration{" +
                 "appName='" + appName + '\'' +
+                "instanceName='" + instanceName + '\'' +
                 ", pyroscopeEndpoint='" + pyroscopeEndpoint + '\'' +
                 ", rootSpanOnly=" + rootSpanOnly +
                 ", addSpanName=" + addSpanName +
+                ", addTraceId=" + addTraceId +
                 ", addProfileURL=" + addProfileURL +
                 ", addProfileBaselineURLs=" + addProfileBaselineURLs +
                 ", optimisticTimestamps=" + optimisticTimestamps +
@@ -50,9 +56,11 @@ public class PyroscopeOtelConfiguration {
 
     public static class Builder {
         String appName;
+        String instanceName;
         String pyroscopeEndpoint;
         boolean rootSpanOnly = true;
         boolean addSpanName = true;
+        boolean addTraceId = true;
         boolean addProfileURL = true;
         boolean addProfileBaselineURLs = true;
         boolean optimisticTimestamps = true;
@@ -66,6 +74,14 @@ public class PyroscopeOtelConfiguration {
                 throw new IllegalArgumentException("appName === null. appName is required");
             }
             this.appName = appName;
+            return this;
+        }
+
+        public Builder setInstanceName(String instanceName) {
+            if (instanceName == null) {
+                throw new IllegalArgumentException("instanceName === null. instanceName is required");
+            }
+            this.instanceName = instanceName;
             return this;
         }
 
@@ -92,6 +108,11 @@ public class PyroscopeOtelConfiguration {
 
         public Builder setAddSpanName(boolean addSpanName) {
             this.addSpanName = addSpanName;
+            return this;
+        }
+
+        public Builder setAddTraceId(boolean addTraceId) {
+            this.addTraceId = addTraceId;
             return this;
         }
 

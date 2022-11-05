@@ -3,10 +3,12 @@ package io.otel.pyroscope;
 
 import io.opentelemetry.sdk.autoconfigure.spi.AutoConfigurationCustomizer;
 import io.opentelemetry.sdk.autoconfigure.spi.AutoConfigurationCustomizerProvider;
+import io.otel.pyroscope.util.IPUtil;
 import io.pyroscope.javaagent.PyroscopeAgent;
 import io.pyroscope.javaagent.config.Config;
 
 import java.util.Map;
+import java.util.UUID;
 
 import static io.otel.pyroscope.OtelCompat.getBoolean;
 import static io.otel.pyroscope.OtelCompat.getString;
@@ -18,6 +20,7 @@ public class PyroscopeOtelAutoConfigurationCustomizerProvider
 
     public static final String CONFIG_APP_NAME = "otel.pyroscope.app.name";
     public static final String CONFIG_ENDPOINT = "otel.pyroscope.endpoint";
+    public static final String CONFIG_INSTANCE_NAME = "otel.pyroscope.instance";
 
     private static final String PYROSCOPE_APPLICATION_NAME_CONFIG = "pyroscope.application.name";
     private static final String PYROSCOPE_SERVER_ADDRESS_CONFIG = "pyroscope.server.address";
@@ -30,6 +33,7 @@ public class PyroscopeOtelAutoConfigurationCustomizerProvider
 
             String appName = cfg.getString(CONFIG_APP_NAME);
             String endpoint = cfg.getString(CONFIG_ENDPOINT);
+            String instance = cfg.getString(CONFIG_INSTANCE_NAME);
             if (startProfiling) {
                 Config pyroConfig = Config.build();
                 PyroscopeAgent.start(pyroConfig);
@@ -55,13 +59,19 @@ public class PyroscopeOtelAutoConfigurationCustomizerProvider
                     }
                 }
             }
+            if (instance == null) {
+                final String uuid = UUID.randomUUID().toString();
+                instance = new StringBuilder().append(IPUtil.getIPV4()).append("-").append(uuid.substring(0, uuid.indexOf("-"))).toString();
+            }
             Map<String, String> labels = parseLabels(getString(cfg, CONFIG_BASELINE_LABELS, ""));
             PyroscopeOtelConfiguration pyroOtelConfig = new PyroscopeOtelConfiguration.Builder()
                     .setAppName(appName)
+                    .setInstanceName(instance)
                     .setPyroscopeEndpoint(endpoint)
                     .setProfileBaselineLabels(labels)
                     .setRootSpanOnly(getBoolean(cfg, "otel.pyroscope.root.span.only", true))
                     .setAddSpanName(getBoolean(cfg, "otel.pyroscope.add.span.name", true))
+                    .setAddTraceId(getBoolean(cfg, "otel.pyroscope.add.trace.id", true))
                     .setAddProfileURL(getBoolean(cfg, "otel.pyroscope.add.profile.url", true))
                     .setAddProfileBaselineURLs(getBoolean(cfg, "otel.pyroscope.add.profile.baseline.url", true))
                     .setOptimisticTimestamps(getBoolean(cfg, "otel.pyroscope.optimistic.timestamps", true))
