@@ -63,6 +63,9 @@ public class PyroscopeOtelSpanProcessor implements SpanProcessor {
         labels.put(LABEL_INSTANCE_NAME, configuration.instanceName);
         if (configuration.addSpanName) {
             labels.put(LABEL_SPAN_NAME, span.getName());
+        }
+
+        if (configuration.addTraceId) {
             labels.put(LABEL_PROFILE_TRACE_ID, profileTraceId);
         }
 
